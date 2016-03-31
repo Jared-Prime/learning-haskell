@@ -35,8 +35,35 @@ isPalindrome :: Eq a => [a] -> Bool
 isPalindrome list = list == (myReverse list)
 
 -- 7. Flatten a nested list
-data NestableList a = FlattenedList a | NestedList [NestableList a]
+data NestableList a = FlattenedList a | NestedList [NestableList a] deriving Show
 
 myFlatten :: NestableList a -> [a]
 myFlatten (FlattenedList x) = [x]
 myFlatten (NestedList x) = concatMap myFlatten x
+
+-- 8. Eliminate consecutive duplicates
+uniq :: (Eq a) => [a] -> [a]
+uniq list = acc_uniq list []
+  where
+    acc_uniq [] acc = acc
+    acc_uniq [x] acc = acc ++ [x]
+    acc_uniq (x:xs) acc
+      | x == (head xs) = acc_uniq xs acc
+      | otherwise      = acc_uniq xs (acc ++ [x])
+
+
+-- 9. Pack consecutive duplicates into sublists
+pack :: (Eq a) => [a] -> [[a]]
+pack [] = []
+pack [x] = [[x]]
+pack (x:xs) = if x `elem` (head (pack xs))
+              then (x:(head (pack xs))):(tail (pack xs))
+              else [x]:(pack xs)
+
+-- 10. Perform run-length encoding of a list
+data ListEncoding a = Encode(Int, a) deriving Show
+
+encodeList :: (Eq a) => [a] -> [ListEncoding a]
+encodeList = map encode . pack
+  where
+    encode list = Encode(myLength list, (head list))
